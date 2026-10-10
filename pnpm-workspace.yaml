@@ -1,0 +1,11 @@
+allowBuilds:
+  esbuild: true
+  electron: true
+  sharp: false
+  workerd: false
+
+  electron-winstaller: false
+
+supportedArchitectures:
+  os: [current, win32]
+  cpu: [current, x64]
