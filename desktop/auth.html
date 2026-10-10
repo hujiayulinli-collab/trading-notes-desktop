@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; script-src 'sha256-VWP4YkzBz6jCRP7gijccWbEsYOteNTrhBxCsCKOSk0o='; style-src 'sha256-UWdt+n5fU3jjbED0r5QejOxfypkysl+WPY6xpCqCOmw='; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'"
+    />
+    <title>盘口手记 · 应用密码</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: 'Microsoft YaHei', 'PingFang SC', system-ui, sans-serif;
+        color: #172b35;
+        background: #f7f8fa;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        padding: 28px;
+      }
+      main {
+        max-width: 480px;
+        margin: 0 auto;
+      }
+      .brand {
+        color: #607580;
+        letter-spacing: 0.16em;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      h1 {
+        font-size: 26px;
+        letter-spacing: -0.03em;
+        margin: 12px 0;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin: 10px 0 18px;
+      }
+      form {
+        margin-top: 22px;
+      }
+      label.field {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        margin: 18px 0 7px;
+      }
+      input[type='password'] {
+        width: 100%;
+        border: 1px solid #b9c8d0;
+        border-radius: 8px;
+        padding: 12px;
+        font: inherit;
+        background: white;
+      }
+      input:focus-visible,
+      button:focus-visible {
+        outline: 3px solid #83b9c6;
+        outline-offset: 2px;
+      }
+      fieldset {
+        padding: 14px;
+        border: 1px solid #d2dde3;
+        border-radius: 10px;
+        background: #fff;
+      }
+      legend {
+        font-size: 13px;
+        padding: 0 5px;
+      }
+      .choice {
+        display: block;
+        padding: 7px 2px;
+        font-size: 14px;
+        cursor: pointer;
+      }
+      input[type='radio'] {
+        accent-color: #245966;
+        margin-right: 8px;
+      }
+      .notice {
+        margin-top: 23px;
+        padding: 13px 15px;
+        background: #edf1f4;
+        border-radius: 10px;
+        font-size: 12px;
+        line-height: 1.7;
+        color: #475d6a;
+      }
+      .notice strong {
+        color: #223e4b;
+      }
+      .hint {
+        font-size: 12px;
+        color: #617681;
+        margin: 8px 0 0;
+      }
+      #error {
+        color: #a02338;
+        font-size: 13px;
+        line-height: 1.6;
+        min-height: 24px;
+        margin: 14px 0 0;
+      }
+      .actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+        margin-top: 12px;
+      }
+      button {
+        font: inherit;
+        font-size: 14px;
+        padding: 11px 20px;
+        border: 1px solid #c5d1d8;
+        border-radius: 8px;
+        cursor: pointer;
+        background: white;
+        color: #284553;
+      }
+      button.primary {
+        background: #245966;
+        border-color: #245966;
+        color: white;
+      }
+      button:disabled {
+        opacity: 0.55;
+        cursor: wait;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="brand">盘口手记 · 本机应用</div>
+      <h1 id="heading">应用密码</h1>
+      <p id="description">正在读取本机设置…</p>
+      <form id="form" hidden>
+        <fieldset id="choices" hidden>
+          <legend>下次打开应用时</legend>
+          <label class="choice"
+            ><input
+              type="radio"
+              name="protection"
+              id="with-password"
+              value="password"
+              checked
+            />使用应用密码</label
+          >
+          <label class="choice"
+            ><input
+              type="radio"
+              name="protection"
+              id="without-password"
+              value="none"
+            />不使用密码，直接打开</label
+          >
+        </fieldset>
+        <div id="current-field" hidden>
+          <label class="field" for="current">当前密码</label>
+          <input
+            id="current"
+            type="password"
+            autocomplete="current-password"
+            maxlength="1024"
+            spellcheck="false"
+          />
+        </div>
+        <div id="password-field">
+          <label class="field" id="password-label" for="password">密码</label>
+          <input
+            id="password"
+            type="password"
+            autocomplete="current-password"
+            maxlength="1024"
+            spellcheck="false"
+          />
+          <p id="password-hint" class="hint" hidden>
+            至少 8 个字符，区分大小写。空格也是密码的一部分。
+          </p>
+        </div>
+        <div id="confirm-field" hidden>
+          <label class="field" for="confirm">再次输入新密码</label>
+          <input
+            id="confirm"
+            type="password"
+            autocomplete="new-password"
+            maxlength="1024"
+            spellcheck="false"
+          />
+        </div>
+        <p id="error" role="alert" aria-live="polite"></p>
+        <div class="actions">
+          <button type="button" id="cancel">取消</button>
+          <button type="submit" class="primary" id="submit">继续</button>
+        </div>
+      </form>
+      <div class="notice">
+        <strong>仅为应用锁，不会加密资料。</strong><br />
+        JSON
+        交易记录、截图、周报和备份仍以明文保存在磁盘上。拥有文件访问权限的人仍可读取资料或绕过应用锁。请同时保护你的
+        Windows 账户和资料文件夹。
+      </div>
+      <p class="hint">应用不保存原始密码。请妥善保管密码。</p>
+    </main>
+    <script>
+      (() => {
+        const $ = (id) => document.getElementById(id);
+        const api = window.journalAuth;
+        let state;
+        let busy = false;
+        let retryUntil = 0;
+        let retryTimer;
+        const clearPasswords = () => {
+          for (const id of ['current', 'password', 'confirm']) $(id).value = '';
+        };
+        const setBusy = (value) => {
+          busy = value;
+          for (const node of $('form').querySelectorAll('button, input'))
+            node.disabled = value;
+          $('submit').textContent = value
+            ? '正在处理…'
+            : state.mode === 'unlock'
+              ? '解锁'
+              : '保存设置';
+        };
+        const choicesChanged = () => {
+          const enabled = $('with-password').checked;
+          $('password-field').hidden = !enabled;
+          $('confirm-field').hidden = !enabled;
+          $('password-hint').hidden = !enabled;
+          $('password').required = enabled;
+          $('confirm').required = enabled;
+          $('error').textContent = '';
+          clearPasswords();
+        };
+        const showError = (result) => {
+          $('error').textContent = result.error || '操作未完成，请重试。';
+          if (result.retryAfterMs > 0) {
+            retryUntil = Date.now() + result.retryAfterMs;
+            clearTimeout(retryTimer);
+            const refresh = () => {
+              const remaining = Math.ceil((retryUntil - Date.now()) / 1000);
+              if (remaining <= 0) {
+                $('error').textContent = '可以重试了。';
+                return;
+              }
+              $('error').textContent =
+                `尝试次数较多，请 ${remaining} 秒后重试。`;
+              retryTimer = setTimeout(refresh, 1000);
+            };
+            refresh();
+          }
+        };
+        $('form').addEventListener('submit', async (event) => {
+          event.preventDefault();
+          if (busy) return;
+          if (Date.now() < retryUntil) return;
+          if (state.mode === 'settings' && $('with-password').checked) {
+            if ($('password').value !== $('confirm').value) {
+              $('error').textContent = '两次输入的新密码不一致。';
+              $('confirm').focus();
+              return;
+            }
+            if (Array.from($('password').value).length < 8) {
+              $('error').textContent = '新密码至少需要 8 个字符。';
+              $('password').focus();
+              return;
+            }
+          }
+          $('error').textContent = '';
+          setBusy(true);
+          try {
+            const result =
+              state.mode === 'unlock'
+                ? await api.unlock($('password').value)
+                : await api.save(
+                    $('current').value,
+                    $('with-password').checked ? $('password').value : '',
+                  );
+            if (!result.ok) {
+              showError(result);
+              if (state.mode === 'unlock') $('password').value = '';
+            }
+          } catch {
+            $('error').textContent = '操作未完成，请关闭窗口后重试。';
+          } finally {
+            setBusy(false);
+          }
+        });
+        $('cancel').addEventListener('click', () => {
+          if (!busy) {
+            clearPasswords();
+            void api.cancel();
+          }
+        });
+        document.addEventListener('keydown', (event) => {
+          if (event.key === 'Escape' && !busy) {
+            event.preventDefault();
+            clearPasswords();
+            void api.cancel();
+          }
+        });
+        window.addEventListener('pagehide', clearPasswords);
+        $('with-password').addEventListener('change', choicesChanged);
+        $('without-password').addEventListener('change', choicesChanged);
+        const initialize = async () => {
+          try {
+            state = await api.state();
+            if (!state.ok) throw new Error();
+            const settings = state.mode === 'settings';
+            $('heading').textContent = settings
+              ? '应用密码设置'
+              : '解锁盘口手记';
+            $('description').textContent = settings
+              ? '可设置本机应用密码，也可选择无密码使用。'
+              : '输入本机应用密码后，才能打开手记。';
+            $('choices').hidden = !settings;
+            $('current-field').hidden = !settings || !state.enabled;
+            $('current').required = settings && state.enabled;
+            $('confirm-field').hidden = !settings;
+            $('password-hint').hidden = !settings;
+            $('password-label').textContent = settings
+              ? state.enabled
+                ? '新密码'
+                : '设置密码'
+              : '密码';
+            $('password').autocomplete = settings
+              ? 'new-password'
+              : 'current-password';
+            $('password').required = true;
+            $('confirm').required = settings;
+            $('cancel').textContent = settings ? '取消' : '退出';
+            $('form').hidden = false;
+            setBusy(false);
+            (settings && state.enabled ? $('current') : $('password')).focus();
+          } catch {
+            $('description').textContent =
+              '无法读取应用锁设置。请关闭此窗口并重新启动应用。';
+          }
+        };
+        void initialize();
+      })();
+    </script>
+  </body>
+</html>
