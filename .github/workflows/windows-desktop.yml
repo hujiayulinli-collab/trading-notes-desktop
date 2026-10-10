@@ -1,0 +1,49 @@
+name: Build Windows desktop installer
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: pnpm/action-setup@v4
+        with:
+          version: '11.19.0'
+          run_install: false
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
+      - name: Run tests
+        run: pnpm test
+      - name: Check TypeScript
+        run: pnpm typecheck
+      - name: Build NSIS installer (unsigned; no publication)
+        run: pnpm desktop:win
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+      - name: Verify expected artifact and write SHA256
+        shell: pwsh
+        run: |
+          $files = @(Get-ChildItem release -Filter '*-Windows-x64-Setup.exe' -File)
+          if ($files.Count -ne 1) { throw 'Expected exactly one Windows x64 installer.' }
+          if ($files[0].Length -lt 10000000) { throw 'Installer is unexpectedly small; refusing an intermediate file.' }
+          $hash = Get-FileHash -LiteralPath $files[0].FullName -Algorithm SHA256
+          "$($hash.Hash.ToLowerInvariant())  $($files[0].Name)" | Set-Content -Path release/SHA256SUMS.txt -Encoding ascii
+          "Build commit: $env:GITHUB_SHA`nUnsigned test installer. Building on Windows is not interactive installation/runtime acceptance testing." | Set-Content -Path release/BUILD-INFO.txt -Encoding utf8
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PankouJournal-Windows-x64-installer
+          path: |
+            release/*-Windows-x64-Setup.exe
+            release/SHA256SUMS.txt
+            release/BUILD-INFO.txt
+          if-no-files-found: error
+          retention-days: 14
